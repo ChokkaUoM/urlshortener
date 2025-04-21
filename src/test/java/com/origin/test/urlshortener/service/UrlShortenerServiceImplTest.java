@@ -1,5 +1,6 @@
 package com.origin.test.urlshortener.service;
 
+import com.origin.test.urlshortener.exceptions.InvalidShortenURLCodeException;
 import com.origin.test.urlshortener.model.UrlMapping;
 import com.origin.test.urlshortener.repository.UrlMappingRepository;
 import com.origin.test.urlshortener.util.ShortCodeGenerator;
@@ -59,8 +60,16 @@ class UrlShortenerServiceImplTest {
         urlMapping.setShortCode(shortCode);
         urlMapping.setCreatedAt(LocalDateTime.now());
         when(urlMappingRepository.findByShortCode(any())).thenReturn(Optional.of(urlMapping));
-        Optional<String> returnedUrl = urlShortenerService.getOriginalUrl(shortCode);
-        Assertions.assertTrue(returnedUrl.isPresent());
-        Assertions.assertEquals(originalUrl, returnedUrl.get());
+        String returnedUrl = urlShortenerService.getOriginalUrl(shortCode);
+        Assertions.assertNotNull(returnedUrl);
+        Assertions.assertEquals(originalUrl, returnedUrl);
+    }
+
+    @Test
+    void getOriginalUrlForNonExitingUrl() {
+        String shortCode = "abc123";
+        when(urlMappingRepository.findByShortCode(any())).thenReturn(Optional.empty());
+        Assertions.assertThrows( InvalidShortenURLCodeException.class, () -> urlShortenerService.getOriginalUrl(shortCode));
+
     }
 }

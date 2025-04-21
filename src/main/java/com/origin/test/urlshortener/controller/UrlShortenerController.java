@@ -2,17 +2,19 @@ package com.origin.test.urlshortener.controller;
 
 import com.origin.test.urlshortener.service.UrlShortenerService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
 @RestController
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class UrlShortenerController {
 
-    @Autowired
-    private UrlShortenerService urlShortenerService;
+    private final UrlShortenerService urlShortenerService;
 
     @PostMapping("/shorten")
     public ResponseEntity<String> shorten(@RequestBody @Valid ShortenUrlRequest shortenUrlRequest) {
@@ -21,10 +23,11 @@ public class UrlShortenerController {
     }
 
     @GetMapping("/{shortCode}")
-    public ResponseEntity<Object> redirect(@PathVariable String shortCode) {
-        return urlShortenerService.getOriginalUrl(shortCode)
-                .map(url -> ResponseEntity.status(302).location(URI.create(url)).build())
-                .orElse(ResponseEntity.notFound().build()); //TODO Handle exceptions in ExceptionHandler
+    public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
+        var url = urlShortenerService.getOriginalUrl(shortCode);
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+                .location(URI.create(url))
+                .build();
     }
 
 }

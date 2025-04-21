@@ -17,7 +17,7 @@ public class ShortCodeGenerator {
     public String generateShortCode() {
         Random random = new Random();
         StringBuilder shortCode = new StringBuilder();
-        for(int i = 0; i < shortCodeLength; i++) {
+        for (int i = 0; i < shortCodeLength; i++) {
             shortCode.append(
                     encodingCharacters.charAt(random.nextInt(encodingCharacters.length()))
             );
